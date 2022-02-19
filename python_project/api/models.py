@@ -14,9 +14,13 @@ class Base(models.Model):
 class Customer(Base):
     nom = models.CharField(max_length=200, verbose_name='nom')
     prenom = models.CharField(max_length=200, verbose_name='prénoms')
-    email = models.EmailField(unique=True, blank=True)
+    email = models.EmailField(unique=True)
     age = models.PositiveIntegerField(validators=[MinValueValidator(15)])
-    tel = models.CharField(max_length=20, verbose_name='téléphone')
+    tel = models.CharField(
+        max_length=20, 
+        verbose_name='téléphone', 
+        unique=True
+        )
     activites = models.ManyToManyField('api.Activity', through='Registration')
     
     class Meta:
@@ -35,7 +39,7 @@ class Activity(Base):
     
     class Meta:
         verbose_name = 'activité physique'
-        db_table = 'activity'
+        db_table = 'activite'
         
     def __str__(self):
         return f'{self.nom}'

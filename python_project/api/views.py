@@ -29,32 +29,36 @@ class CustomersAPIView(APIView):
     
     def post(self, request):
         data = request.data
+        message = ''
+        success = False
         
-        if not data.get('nom') or not data.get('prenom') or not data.get('tel') or not data.get('age'):
-            return Response({'message': 'Veuillez remplir les champs requis !', 'success': False}, status=status.HTTP_200_OK)
-        elif not validators.validate_phone_number(data.get('tel')):
-            return Response({'message': "Veuillez saisir un numéro au format XX-XX-XX-XX-XX ou XX XX XX XX XX ", 'success': False}, status=status.HTTP_200_OK)
+        if not data.get('nom') or data.get('nom').isspace() or not data.get('prenom') or data.get('prenom').isspace() or not data.get('tel') or data.get('tel').isspace() or not data.get('age') or not data.get('email') or data.get('email').isspace():
+            message = 'Veuillez remplir les champs requis !'
+            return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
+        elif not validators.is_email(data.get('email')):
+            message = 'Veuillez saisir un email valide !'
+            return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
+        elif validators.customer_exists(data.get('email')):
+            message = 'Cet email est déjà inscrit !'
+            return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
         else:
-            if data.get('email'):
-                if validators.validate_email(data.get('email')):
-                    models.Customer.objects.create(
-                        nom=data.get('nom'),
-                        prenom=data.get('prenom'),
-                        age=data.get('age'),
-                        tel=data.get('tel'),
-                        email=data.get('email')
-                    )
-                    
-                    return Response({'message': "Client bien enregistré.", 'success': True}, status=status.HTTP_200_OK)
-                else: return Response({'message': "Veuillez saisir un email valide", 'success': False}, status=status.HTTP_200_OK)
+            if not validators.validate_phone_number(data.get('tel')):
+                message = "Veuillez saisir un numéro au format XX-XX-XX-XX-XX ou XX XX XX XX XX "
+                return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
+            elif not isinstance(data.get('age'), int) or not data.get('age') >= 15:
+                message = 'Veuillez saisir un âge supérieur ou égal à 15 ans'
+                return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
             else:
                 models.Customer.objects.create(
                         nom=data.get('nom'),
                         prenom=data.get('prenom'),
                         age=data.get('age'),
                         tel=data.get('tel'),
+                        email=data.get('email')
                     )
-                return Response({'message': "Client bien enregistré.", 'success': True}, status=status.HTTP_200_OK)
+                message = 'Client bien enregistré.'
+                success = True
+                return Response({'message': message, 'success': success}, status=status.HTTP_201_CREATED)
 
 class CustomerAPIView(APIView):
     def get(self, request, pk):

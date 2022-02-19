@@ -11,13 +11,13 @@ def is_email(email: str):
         return False
 
 def validate_phone_number(number: str):
-    if not re.fullmatch('\d{2}([ -]\d{2}){4}', number):
-        return True
-    else: return False
+    if not re.fullmatch('(^\d{2}([ -]\d{2}){4}$)|(^\d{10}$)', number):
+        return False
+    else: return True
 
-def customer_exists(pk: int):
+def customer_exists(email: str):
     try:
-        customer = models.customer.get(pk=pk)
+        customer = models.Customer.objects.get(email=email)
         return True
     except models.Customer.DoesNotExist:
         return False
