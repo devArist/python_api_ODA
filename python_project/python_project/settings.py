@@ -81,28 +81,28 @@ WSGI_APPLICATION = 'python_project.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 # ODA db
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'api_db',
-#         'USER': 'root',
-#         'PASSWORD': 'root',
-#         'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
-#         'PORT': 3306
-#     }
-# }
-
-# local db
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'api_db',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '/opt/lampp/var/mysql/mysql.sock',
+        'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
         'PORT': 3306
     }
 }
+
+# local db
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'api_db',
+#         'USER': 'root',
+#         'PASSWORD': 'root',
+#         'HOST': '/opt/lampp/var/mysql/mysql.sock',
+#         'PORT': 3306
+#     }
+# }
 
 
 # Password validation

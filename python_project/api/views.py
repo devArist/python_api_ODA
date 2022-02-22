@@ -43,7 +43,7 @@ class CustomersAPIView(APIView):
             return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
         else:
             if not validators.validate_phone_number(data.get('tel')):
-                message = "Veuillez saisir un numéro au format XX-XX-XX-XX-XX ou XX XX XX XX XX "
+                message = "Veuillez saisir un numéro au format XX-XX-XX-XX-XX ou XX XX XX XX XX ou XXXXXXXXXX"
                 return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
             elif not isinstance(data.get('age'), int) or not data.get('age') >= 15:
                 message = 'Veuillez saisir un âge supérieur ou égal à 15 ans'
