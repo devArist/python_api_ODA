@@ -4,8 +4,8 @@ from .models import Customer, Activity, Registration
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['id','nom', 'prenom', 'email', 'age', 'tel']
-        
+        exclude = ['date_ajout', 'date_modification','status', 'activites']
+        depth = 1
 
 
 class ActivitySerializer(serializers.ModelSerializer):

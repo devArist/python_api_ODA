@@ -5,6 +5,7 @@ from rest_framework import status
 from . import models, serializers
 from managers import paginators, validators
 from rest_framework.decorators import api_view
+import re
 
 # Create your views here.
 
@@ -34,7 +35,7 @@ class CustomersAPIView(APIView):
         message = ''
         success = False
         
-        if not data.get('nom') or data.get('nom').isspace() or not data.get('prenom') or data.get('prenom').isspace() or not data.get('tel') or data.get('tel').isspace() or not data.get('age') or not data.get('email') or data.get('email').isspace():
+        if not data.get('nom') or data.get('nom').isspace() or not data.get('prenom') or data.get('prenom').isspace() or not data.get('tel')  or not data.get('age') or not data.get('email') or data.get('email').isspace():
             message = 'Veuillez remplir les champs requis !'
             return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
         elif not validators.is_email(data.get('email')):
@@ -44,12 +45,15 @@ class CustomersAPIView(APIView):
             message = 'Cet email est déjà inscrit !'
             return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
         else:
-            if not validators.validate_phone_number(data.get('tel')):
-                message = "Veuillez saisir un numéro au format XX-XX-XX-XX-XX ou XX XX XX XX XX ou XXXXXXXXXX"
+            if not re.fullmatch('^[0-9]{2}[0-9]{8}$', str(data.get('tel'))):
+                message = "Veuillez saisir un numéro au format XXXXXXXXXX"
                 return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
             elif not isinstance(data.get('age'), int) or not data.get('age') >= 15:
                 message = 'Veuillez saisir un âge supérieur ou égal à 15 ans'
                 return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
+            # elif validators.customer_exists(data.get('tel')):
+            #     message = 'Un client existe déjà avec ce numéro !'
+            #     return Response({'message': message, 'success': success}, status=status.HTTP_200_OK)
             else:
                 models.Customer.objects.create(
                         nom=data.get('nom'),
@@ -63,27 +67,27 @@ class CustomersAPIView(APIView):
                 return Response({'message': message, 'success': success}, status=status.HTTP_201_CREATED)
 
 class CustomerAPIView(APIView):
-    def get(self, request, email):
-        if not validators.customer_exists(email):
+    def get(self, request, pk):
+        if not validators.customer_exists_with_id(pk):
             return Response({'message': "Ce client n'existe pas !"}, status=status.HTTP_200_OK)
         else:
-            serializer = serializers.CustomerSerializer(models.Customer.objects.get(email=email))
+            serializer = serializers.CustomerSerializer(models.Customer.objects.get(pk=pk))
             return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def update(self, request, email):
-        if not validators.customer_exists(email):
+    def update(self, request, pk):
+        if not validators.customer_exists_with_id(pk):
             return Response({'message': "Ce client n'existe pas !", "success": False}, status=status.HTTP_200_OK)
         else:
-            customer = models.Customer.objects.get(email=email)
+            customer = models.Customer.objects.get(pk=pk)
             serializer = serializers.CustomerSerializer(customer, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'message': 'Modification bien éffectuée.', 'success': True}, status=status.HTTP_200_OK)
     
-    def delete(self, request, email):
-        if not validators.customer_exists(email):
+    def delete(self, request, pk):
+        if not validators.customer_exists_with_id(pk):
             return Response({'message': "Ce client n'existe pas !", "success": False}, status=status.HTTP_200_OK)
         else:
-            customer = models.Customer.objects.get(email=email)
+            customer = models.Customer.objects.get(pk=pk)
             customer.delete()
             return Response({'message': 'Client bien supprimé !', 'success': True}, status=status.HTTP_200_OK)
